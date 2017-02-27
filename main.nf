@@ -8,6 +8,7 @@ small_core=config.small_core
 
 // ** - Recurse through subdirectories
 fq_set = Channel.fromPath(data_location + "**/*.fastq.gz")
+                .map { n -> [ n.getName(), n ] }
 
 
 project="PRJNA13758"
@@ -67,13 +68,69 @@ process build_hisat_index {
         file("reference.fa.gz") from reference_build_hisat
 
     output:
-        file("ref.*") into hisat_index
+        file "*.ht2" into hs2_indices
 
     """
         zcat reference.fa.gz > reference.fa
-        hisat2-build -p ${small_core} --ss splice.ss --exon exon.exon reference.fa ref.hisat2_index
+        hisat2-build -p ${small_core} --ss splice.ss --exon exon.exon reference.fa reference.hisat2_index
     """
 
 }
 
-hisat_index.println()
+process trimmomatic {
+
+    cpus small_core
+
+    tag { fq_name }
+
+    input:
+        set val(name), file(reads) from fq_set
+
+    output:
+        file(name_out) into trimmed_reads
+
+    script:
+    name_out = name.replace('.fastq.gz', '_trim.fq.gz')
+
+    """
+        trimmomatic SE -phred33 -threads ${small_core} ${reads} ${name_out} ILLUMINACLIP:TruSeq3-SE.fa:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:15
+    """
+}
+
+
+process align {
+
+    cpus small_core
+
+    tag "$prefix"
+
+    input:
+        file reads from trimmed_reads
+        file hs2_indices from hs2_indices.first()
+
+    output:
+        file "${prefix}.bam" into hisat2_bams
+        file "${prefix}.hisat2_log.txt" into alignment_logs
+
+    script:
+        index_base = hs2_indices[0].toString() - ~/.\d.ht2/
+        prefix = reads[0].toString() - ~/(_trim)(\.fq\.gz)$/
+
+    """
+        hisat2 -p 2 -x $index_base -U ${reads} -S ${prefix}.sam 2> ${prefix}.hisat2_log.txt
+        samtools view -bS ${prefix}.sam > ${prefix}.unsorted.bam
+        samtools flagstat ${prefix}.unsorted.bam
+        samtools sort -@ 2 -o ${prefix}.bam ${prefix}.unsorted.bam
+        samtools index -b ${prefix}.bam
+    """
+}
+
+process merge_bams {
+
+    cpus small_core
+
+    tag "$prefix"
+
+}
+
+
