@@ -1,1 +1,5 @@
 nextflow.config
+work
+.nextflow
+.nextflow.log*
+output
