@@ -54,8 +54,8 @@ process hisat2_indexing {
         file("reference.fa.gz") into reference_build_hisat
 
     """
-        gzcat geneset.gtf.gz | python ${extract_splice_py} - > splice.ss
-        gzcat geneset.gtf.gz | python ${extract_exons_py} - > exon.exon
+        zcat geneset.gtf.gz | python ${extract_splice_py} - > splice.ss
+        zcat geneset.gtf.gz | python ${extract_exons_py} - > exon.exon
     """
 
 }
@@ -173,7 +173,7 @@ process stringtie_counts {
         file("${sample_id}/*") into stringtie_exp
 
     """ 
-        gzcat geneset.gtf.gz > geneset.gtf
+        zcat geneset.gtf.gz > geneset.gtf
         stringtie -p ${small_core} -G geneset.gtf -e -B -o ${sample_id}/${sample_id}_expressed.gtf ${bam}
     """
 }
