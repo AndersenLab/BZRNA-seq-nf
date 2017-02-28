@@ -13,7 +13,7 @@ fq_set = Channel.fromPath(data_location + "**/*.fastq.gz")
 
 project="PRJNA13758"
 reference="WS255"
-prefix="http://ftp.wormbase.org/pub/wormbase/releases/${reference}/species/c_elegans/${project}/"
+prefix="http://ftp.wormbase.org/pub/wormbase/releases/${reference}/species/c_elegans/${project}"
 
 
 process fetch_reference {
