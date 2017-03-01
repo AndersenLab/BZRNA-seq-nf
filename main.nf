@@ -158,7 +158,6 @@ process join_bams {
 
 process stringtie_counts {
 
-    //storeDir '/storedir/expression'
     publishDir "output/expression", mode: 'copy'
 
     cpus small_core
