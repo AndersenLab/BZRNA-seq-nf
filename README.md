@@ -1,2 +1,2 @@
 # BZRNA-seq-nf
-Benzimidazole RNA-Seq and smRNA-Seq Pipeline
+Benzimidazole RNA-Seq Pipeline
