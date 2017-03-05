@@ -173,10 +173,9 @@ process stringtie_counts {
 
     """ 
         zcat geneset.gtf.gz > geneset.gtf
-        stringtie -p ${small_core} -G geneset.gtf -e -B -o ${sample_id}/${sample_id}_expressed.gtf ${bam}
+        stringtie -p ${small_core} -G geneset.gtf -A ${sample_id}/${sample_id}_abund.tab -e -B -o ${sample_id}/${sample_id}_expressed.gtf ${bam}
     """
 }
-
 
 prepDE = file("scripts/prepDE.py")
 
